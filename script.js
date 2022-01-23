@@ -2,14 +2,150 @@ const modal = document.querySelector(".create_new_modal");
 const createNewBox = document.querySelector(".create_new_box");
 const newTitle = document.querySelector("#title");
 const newDescription = document.querySelector("#description");
+const newCreate = document.querySelector(".create");
+const newChooseColor = document.querySelector(".new_choose");
+const newChooseColorTrigger = document.querySelector(".new_choose_color");
+const newChooseColorDropdown = document.querySelector(".new_colors");
+
+const notesColumns = document.querySelectorAll(".notes_grid_item");
 
 ///////////////// Helper Fnctions /////////////////
+function insertAfter(referenceNode, newNode) {
+  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
 function closeModal() {
   createNewBox.classList.add("pullUp");
+  newCreate.disabled = true;
   setTimeout(() => {
     modal.style.display = "none";
     createNewBox.classList.remove("pullUp");
+    newCreate.disabled = false;
   }, 700);
+}
+
+function closeNewChooseDropdown() {
+  newChooseColorDropdown.classList.add("pullUpChoose");
+  setTimeout(() => {
+    newChooseColorDropdown.style.display = "none";
+    newChooseColorDropdown.classList.remove("pullUpChoose");
+    newChooseColorTrigger.classList.remove("show");
+  }, 380);
+}
+
+function changeColor() {
+  const trigger_btn_color =
+    this.parentNode.parentNode.previousElementSibling.children[1];
+  const container = this.parentNode.parentNode.parentNode.parentNode.parentNode;
+  trigger_btn_color.classList.remove(trigger_btn_color.classList[1]);
+  trigger_btn_color.classList.add(this.classList[1]);
+  container.classList.remove(container.classList[1]);
+  container.classList.add(this.classList[1]);
+}
+
+function openColorsDropDown(dropdown) {
+  dropdown.style.display = "block";
+  dropdown.classList.add("pullDownChoose");
+  setTimeout(() => {
+    dropdown.classList.remove("pullDownChoose");
+  }, 1000);
+}
+
+function closeColorsDropDown(dropdown, trigger) {
+  dropdown.classList.add("pullUpChoose");
+  setTimeout(() => {
+    dropdown.style.display = "none";
+    dropdown.classList.remove("pullUpChoose");
+    trigger.classList.remove("show");
+  }, 380);
+}
+
+function colorsDropDownTrigger() {
+  if (!this.classList.contains("show")) {
+    this.classList.add("show");
+    openColorsDropDown(this.nextElementSibling);
+  } else {
+    closeColorsDropDown(this.nextElementSibling, this);
+  }
+}
+
+function removeNote() {
+  this.parentNode.parentNode.removeChild(this.parentNode);
+}
+
+function createNoteNode(data) {
+  let div_container = document.createElement("div");
+  div_container.classList.add("note");
+  div_container.classList.add(data.color);
+  div_container.innerHTML = `
+    <div class="note_title"><h2>${data.title.replace(/\r?\n/g, "<br/>")}</div>
+    <div class="note_description">
+      <p>${data.description.replace(/\r?\n/g, "<br/>")}</p>
+    </div>
+  `;
+
+  let note_close_btn = document.createElement("div");
+  note_close_btn.classList.add("note_delete");
+  note_close_btn.innerHTML = `<i class="fas fa-times"></i>`;
+  div_container.appendChild(note_close_btn);
+  note_close_btn.addEventListener("click", removeNote);
+
+  let div_color_container = document.createElement("div");
+  div_color_container.classList.add("note_color_change");
+  let div_color_inner = document.createElement("div");
+  div_color_inner.classList.add("choose_colors_container");
+  let colors_dropdown_trigger = document.createElement("button");
+  colors_dropdown_trigger.classList.add("choose_color");
+  colors_dropdown_trigger.innerHTML = `
+    <span class="icon"><i class="fas fa-chevron-down"></i></span>
+    <span class="color_box ${data.color}"></span>
+  `;
+  div_color_inner.appendChild(colors_dropdown_trigger);
+  colors_dropdown_trigger.addEventListener("click", colorsDropDownTrigger);
+
+  let colors_dropdown = document.createElement("div");
+  colors_dropdown.classList.add("colors");
+  let colors_close_btn = document.createElement("div");
+  colors_close_btn.classList.add("color");
+  colors_close_btn.innerHTML = `
+    <div class="icon_up">
+      <i class="fas fa-chevron-up"></i>
+    </div>
+  `;
+  colors_dropdown.appendChild(colors_close_btn);
+  colors_close_btn.addEventListener("click", function () {
+    closeColorsDropDown(this.parentNode, colors_dropdown_trigger);
+  });
+
+  let colors_list = [];
+  for (let i = 1; i <= 6; i++) {
+    let color = document.createElement("div");
+    color.classList.add("color");
+    let color_trigger = document.createElement("div");
+    color_trigger.classList.add("col");
+    color_trigger.classList.add(`col-${i}`);
+    color.appendChild(color_trigger);
+    color_trigger.addEventListener("click", changeColor);
+    colors_list.push(color);
+  }
+  colors_list.forEach((c) => {
+    colors_dropdown.appendChild(c);
+  });
+  div_color_inner.appendChild(colors_dropdown);
+  div_color_container.appendChild(div_color_inner);
+  div_container.appendChild(div_color_container);
+
+  document.addEventListener("click", (e) => {
+    if (
+      e.target !== colors_dropdown &&
+      !colors_dropdown.contains(e.target) &&
+      e.target !== colors_dropdown_trigger &&
+      !colors_dropdown_trigger.contains(e.target)
+    ) {
+      closeColorsDropDown(colors_dropdown, colors_dropdown_trigger);
+    }
+  });
+  return div_container;
 }
 ///////////////// Helper Fnctions /////////////////
 
@@ -24,16 +160,18 @@ document.querySelector(".add_new").addEventListener("click", () => {
 //// Open Modal ////
 
 //// Create New Note ////
-document.querySelector(".create").addEventListener("click", () => {
-  const clonedNodeOfNote = document.querySelector(".note").cloneNode(true);
-  clonedNodeOfNote.children[0].children[0].innerHTML = newTitle.value.replace(
-    /\r?\n/g,
-    "<br>"
-  );
-  clonedNodeOfNote.children[1].children[0].innerHTML =
-    newDescription.value.replace(/\r?\n/g, "<br>");
+newCreate.addEventListener("click", () => {
+  if (newTitle.value.length === 0 || newDescription.value.length === 0) {
+    return alert("You can't leave any field empty!");
+  }
+  const data = {
+    color: createNewBox.classList[1],
+    title: newTitle.value,
+    description: newDescription.value,
+  };
+  const clonedNodeOfNote = createNoteNode(data);
 
-  const notesContainer = document.querySelector(".notes_grid_item");
+  const notesContainer = notesColumns[0];
   notesContainer.insertBefore(clonedNodeOfNote, notesContainer.children[0]);
   const translateY = clonedNodeOfNote.getBoundingClientRect().height;
   notesContainer.removeChild(notesContainer.children[0]);
@@ -51,12 +189,13 @@ document.querySelector(".create").addEventListener("click", () => {
       notesContainer.insertBefore(clonedNodeOfNote, notesContainer.children[0]);
       notesContainer.children[0].classList.add("pullDown");
       setTimeout(() => {
-        notesContainer.removeAttribute("style");
-        notesContainer.children[0].removeAttribute("style");
-        notesContainer.children[0].classList.remove("pullDown");
         [...notesContainer.children].forEach((c) => {
           c.removeAttribute("style");
         });
+        notesContainer.removeAttribute("style");
+        notesContainer.children[0].removeAttribute("style");
+        notesContainer.children[0].classList.remove("pullDown");
+        initializeDragAndDrop(notesContainer.children[0]);
       }, 1000);
     }, 500);
   }, 1000);
@@ -97,9 +236,293 @@ document.querySelector(".trash").addEventListener("click", () => {
 //// Trash Note ////
 
 //// Close Note on modal body click ////
-modal.addEventListener("click", (e) => {
-  if (e.target !== createNewBox && !createNewBox.contains(e.target)) {
-    closeModal();
+// modal.addEventListener("click", (e) => {
+//   if (e.target !== createNewBox && !createNewBox.contains(e.target)) {
+//     closeModal();
+//   }
+// });
+//// Close Note on modal body click ////
+
+//// Choose Color Function ////
+newChooseColorTrigger.addEventListener("click", function () {
+  this.classList.toggle("show");
+  newChooseColorDropdown.style.display = "block";
+  newChooseColorDropdown.classList.add("pullDownChoose");
+  setTimeout(() => {
+    newChooseColorDropdown.classList.remove("pullDownChoose");
+  }, 1000);
+});
+
+document
+  .querySelector(".close_new_choose_dropdown")
+  .addEventListener("click", () => {
+    closeNewChooseDropdown();
+  });
+
+document.addEventListener("click", (e) => {
+  if (e.target !== newChooseColor && !newChooseColor.contains(e.target)) {
+    closeNewChooseDropdown();
   }
 });
-//// Close Note on modal body click ////
+
+document.querySelectorAll(".create_new_box_col").forEach((c) => {
+  c.addEventListener("click", function () {
+    newChooseColorTrigger.children[1].classList.remove(
+      newChooseColorTrigger.children[1].classList[1]
+    );
+    newChooseColorTrigger.children[1].classList.add(this.classList[1]);
+    createNewBox.classList.remove(createNewBox.classList[1]);
+    createNewBox.classList.add(this.classList[1]);
+  });
+});
+//// Choose Color Function ////
+
+//// Save to local storage ////
+const data = {
+  "1stRow": [
+    {
+      color: "col-1",
+      title: "Business Ideas",
+      description:
+        "What is Lorem Ipsum? \n \n Lorem Ipsum is simply dummy text of the printing and typesetting industry.\n \n Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+    },
+    {
+      color: "col-3",
+      title: "2021 Goals and KPIs",
+      description:
+        "2x monthly revenue \n \n Increase ARPU by +15% \n \n CAGR Maintain MoM growth over 5% \n \n 3 new MVP launches",
+    },
+    {
+      color: "col-2",
+      title: "Recent contacts",
+      description:
+        "Send reminder to Tomo to collect previous sales presentations for similar clients \n \n Set meeting with Tomo & team Prepare_",
+    },
+  ],
+  "2stRow": [
+    {
+      color: "col-6",
+      title: "2022 Strategy",
+      description:
+        "Validate market entry into SEA markets \n \n Develop sales strategy focusing on Tier 1 clients in Manufacturing sectors \n \n Enhance admin functions, especially HR",
+    },
+    {
+      color: "col-4",
+      title: "Organizational thoughts",
+      description:
+        "Key requirements for Marketing Lead \n Transparency \n Agility \n Logical thinking \n",
+    },
+  ],
+  "3stRow": [
+    {
+      color: "col-5",
+      title: "Sales attack list",
+      description:
+        "ABC Co \n \n BBB and Company \n \n CDE-inc \n \n TUV Capital",
+    },
+    {
+      color: "col-2",
+      title: "Vision/Values memo",
+      description:
+        "Nike \n \n  Our mission is to bring inspiration and innovation to every athlete* in the world. [*If you have a body, you are an athlete.] Airbnb Values Champion the Mission Be a Host Simplify",
+    },
+  ],
+};
+Object.keys(data).forEach((c, i) => {
+  data[c].forEach((d) => {
+    const newNote = createNoteNode(d);
+    notesColumns[i].appendChild(newNote);
+    initializeDragAndDrop(newNote);
+  });
+});
+//// Save to local storage ////
+
+//// Drag and Drop ////
+function initializeDragAndDrop(c, container) {
+  let cOffX = c.getBoundingClientRect().x;
+  let cOffY = c.getBoundingClientRect().y;
+  c.addEventListener("mousedown", dragStart);
+  c.addEventListener("touchstart", touchStart);
+  let clonedEl;
+
+  function moveElements(e, xPos, yPos) {
+    const x = xPos;
+    const y = yPos;
+    const dragging = document.querySelector(".dragging");
+    const dragged = document.querySelector(".dragged");
+
+    const draggableElements = [...c.parentNode.querySelectorAll(".note")];
+    const draggedElement = draggableElements.indexOf(dragged);
+
+    notesColumns.forEach((c, i) => {
+      const elementDetails = c.getBoundingClientRect();
+      const top = elementDetails.top;
+      const right = elementDetails.right;
+      const bottom = elementDetails.bottom;
+      const left = elementDetails.left;
+      let draggableElementsInner = [...c.children];
+      const draggedElement = draggableElementsInner.indexOf(dragged);
+
+      if (x > left && x < right) {
+        if (y > top && y < bottom) {
+          if (draggedElement === -1) {
+            if (c.children.length === 0) {
+              c.appendChild(dragged);
+            } else {
+              draggableElementsInner.forEach((el, i) => {
+                const elementDetails = el.getBoundingClientRect();
+                const top = elementDetails.top;
+                const right = elementDetails.right;
+                const bottom = elementDetails.bottom;
+
+                if (
+                  draggableElementsInner[i + 1] &&
+                  y > top &&
+                  y < bottom &&
+                  x > right &&
+                  x <
+                    draggableElementsInner[i + 1].getBoundingClientRect().right
+                ) {
+                  insertAfter(draggableElementsInner[i], dragged);
+                } else if (
+                  x >
+                  draggableElementsInner[
+                    draggableElementsInner.length - 1
+                  ].getBoundingClientRect().right
+                ) {
+                  c.appendChild(dragged);
+                } else if (
+                  x < draggableElementsInner[0].getBoundingClientRect().right
+                ) {
+                  c.insertBefore(dragged, draggableElementsInner[0]);
+                }
+              });
+            }
+          }
+        }
+      }
+    });
+    draggableElements.forEach((c, i) => {
+      const elementDetails = c.getBoundingClientRect();
+      const top = elementDetails.top;
+      const right = elementDetails.right;
+      const bottom = elementDetails.bottom;
+      const left = elementDetails.left;
+
+      if (x > left && x < right) {
+        if (y > top && y < bottom) {
+          if (!c.classList.contains("dragged")) {
+            if (i !== draggedElement) {
+              // console.log(i);
+              function changeElement() {
+                draggableElements.splice(draggedElement, 1);
+                draggableElements.splice(i, 0, dragged);
+                draggableElements.forEach((c) => c.parentNode.appendChild(c));
+              }
+              const dW = dragged.getBoundingClientRect();
+              const cW = c.getBoundingClientRect();
+              const dL = dW.width + 20;
+              if (cW.width > dW.width) {
+                if (x < cW.left + dL) {
+                  changeElement();
+                }
+              } else {
+                changeElement();
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function dragStart(e) {
+    e = e || window.event;
+    e.preventDefault();
+
+    const colors = this.children[3].children[0];
+    const closeBtn = this.children[2];
+
+    if (
+      e.target !== colors &&
+      !colors.contains(e.target) &&
+      e.target !== closeBtn &&
+      !closeBtn.contains(e.target)
+    ) {
+      clonedEl = c.cloneNode(true);
+      document.body.appendChild(clonedEl);
+      cOffX = e.pageX - c.offsetLeft;
+      cOffY = e.pageY - c.offsetTop;
+
+      clonedEl.style.width = `${c.getBoundingClientRect().width}px`;
+      clonedEl.style.top = `${e.pageY - cOffY}px`;
+      clonedEl.style.left = `${e.pageX - cOffX}px`;
+
+      document.addEventListener("mousemove", dragMove);
+      document.addEventListener("mouseup", dragEnd);
+
+      clonedEl.classList.add("dragging");
+      c.classList.add("dragged");
+    }
+  }
+
+  function dragMove(e) {
+    e = e || window.event;
+    e.preventDefault();
+    clonedEl.style.top = (e.pageY - cOffY).toString() + "px";
+    clonedEl.style.left = (e.pageX - cOffX).toString() + "px";
+    moveElements(e, e.clientX, e.clientY);
+  }
+
+  function touchStart(e) {
+    e = e || window.event;
+
+    const colors = this.children[3].children[0];
+    const closeBtn = this.children[2];
+    if (
+      e.target !== colors &&
+      !colors.contains(e.target) &&
+      e.target !== closeBtn &&
+      !closeBtn.contains(e.target)
+    ) {
+      clonedEl = c.cloneNode(true);
+      document.body.appendChild(clonedEl);
+      cOffX = e.changedTouches[0].clientX - c.offsetLeft;
+      cOffY = e.changedTouches[0].clientY - c.offsetTop;
+
+      clonedEl.style.width = `${c.getBoundingClientRect().width}px`;
+      clonedEl.style.top = `${e.changedTouches[0].clientY - cOffY}px`;
+      clonedEl.style.left = `${e.changedTouches[0].clientX - cOffX}px`;
+
+      document.addEventListener("touchmove", touchMove);
+      document.addEventListener("touchend", dragEnd);
+
+      clonedEl.classList.add("dragging");
+      c.classList.add("dragged");
+    }
+  }
+
+  function touchMove(e) {
+    e = e || window.event;
+    clonedEl.style.top =
+      (e.changedTouches[0].clientY - cOffY).toString() + "px";
+    clonedEl.style.left =
+      (e.changedTouches[0].clientX - cOffX).toString() + "px";
+
+    moveElements(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+  }
+
+  function dragEnd(e) {
+    e = e || window.event;
+    e.preventDefault();
+
+    document.removeEventListener("mousemove", dragMove);
+    document.removeEventListener("mouseup", dragEnd);
+    document.removeEventListener("touchmove", touchMove);
+    document.removeEventListener("touchend", dragEnd);
+
+    c.classList.remove("dragging");
+    c.classList.remove("dragged");
+    document.body.removeChild(document.querySelector(".dragging"));
+  }
+}

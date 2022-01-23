@@ -13,7 +13,7 @@
   </head>
   <body>
     <div class="create_new_modal">
-      <div class="create_new_box">
+      <div class="create_new_box col-4">
         <div class="title">
           <textarea id="title" placeholder="Title"></textarea>
         </div>
@@ -24,12 +24,39 @@
           ></textarea>
         </div>
         <div class="actions">
-          <div class="choose_color">
-            <span class="icon"><i class="fas fa-chevron-down"></i></span>
-            <span class="color_box"></span>
+          <div class="choose_colors_container new_choose">
+            <button class="choose_color new_choose_color">
+              <span class="icon"><i class="fas fa-chevron-down"></i></span>
+              <span class="color_box col-4"></span>
+            </button>
+            <div class="colors new_colors">
+              <div class="color">
+                <div class="icon_up close_new_choose_dropdown">
+                  <i class="fas fa-chevron-up"></i>
+                </div>
+              </div>
+              <div class="color">
+                <div class="col col-4 create_new_box_col"></div>
+              </div>
+              <div class="color">
+                <div class="col col-2 create_new_box_col"></div>
+              </div>
+              <div class="color">
+                <div class="col col-3 create_new_box_col"></div>
+              </div>
+              <div class="color">
+                <div class="col col-1 create_new_box_col"></div>
+              </div>
+              <div class="color">
+                <div class="col col-5 create_new_box_col"></div>
+              </div>
+              <div class="color">
+                <div class="col col-6 create_new_box_col"></div>
+              </div>
+            </div>
           </div>
-          <div class="trash"><i class="fas fa-trash"></i></div>
-          <div class="create"><i class="fas fa-check"></i></div>
+          <button class="trash"><i class="fas fa-trash"></i></button>
+          <button class="create"><i class="fas fa-check"></i></button>
         </div>
       </div>
     </div>
@@ -40,140 +67,9 @@
         </button>
       </div>
       <div class="notes_grid_container">
-        <div class="notes_grid_item">
-          <div class="note">
-            <div class="note_title"><h2>Business Ideas</h2></div>
-            <div class="note_description">
-              <p>
-                What is Lorem Ipsum? <br /><br />
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry.<br /><br />
-                Lorem Ipsum has been the industry's standard dummy text ever
-                since the 1500s, when an unknown printer took a galley of type
-                and scrambled it to make a type specimen book.
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-          <div class="note">
-            <div class="note_title"><h2>2021 Goals and KPIs</h2></div>
-            <div class="note_description">
-              <p>
-                2x monthly revenue <br /><br />
-                Increase ARPU by +15% <br /><br />
-                CAGR Maintain MoM growth over 5% <br /><br />
-                3 new MVP launches
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-          <div class="note">
-            <div class="note_title"><h2>Recent contacts</h2></div>
-            <div class="note_description">
-              <p>
-                Send reminder to Tomo to collect previous sales presentations
-                for similar clients <br /><br />
-                Set meeting with Tomo & team Prepare_
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-        </div>
-        <div class="notes_grid_item">
-          <div class="note">
-            <div class="note_title"><h2>2022 Strategy</h2></div>
-            <div class="note_description">
-              <p>
-                Validate market entry into SEA markets <br /><br />
-                Develop sales strategy focusing on Tier 1 clients in
-                Manufacturing sectors <br /><br />
-                Enhance admin functions, especially HR
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-
-          <div class="note">
-            <div class="note_title"><h2>Organizational thoughts</h2></div>
-            <div class="note_description">
-              <p>
-                Key requirements for Marketing Lead<br />
-                Transparency<br />
-                Agility<br />
-                Logical thinking<br />
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-        </div>
-        <div class="notes_grid_item">
-          <div class="note">
-            <div class="note_title"><h2>Sales attack list</h2></div>
-            <div class="note_description">
-              <p>
-                ABC Co <br /><br />
-                BBB and Company<br /><br />
-                CDE-inc<br /><br />
-                TUV Capital
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-          <div class="note">
-            <div class="note_title"><h2>Vision/Values memo</h2></div>
-            <div class="note_description">
-              <p>
-                Nike <br /><br />
-                Our mission is to bring inspiration and innovation to every
-                athlete* in the world. [*If you have a body, you are an
-                athlete.] Airbnb Values Champion the Mission Be a Host Simplify
-              </p>
-            </div>
-            <div class="note_color_change">
-              <div class="choose_color">
-                <span class="icon"><i class="fas fa-chevron-down"></i></span>
-                <span class="color_box"></span>
-              </div>
-            </div>
-            <div class="note_delete"><i class="fas fa-times"></i></div>
-          </div>
-        </div>
+        <div class="notes_grid_item"></div>
+        <div class="notes_grid_item"></div>
+        <div class="notes_grid_item"></div>
       </div>
     </div>
     <script src="./script.js"></script>
