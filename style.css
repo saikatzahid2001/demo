@@ -16,7 +16,7 @@
   --c4: #ffd3b9;
   --c5: #ffcbc3;
   --c6: #e9b2f2;
-  --modal_bg: #8f8f8f;
+  --modal_bg: #8f8f8fa8;
 }
 .col-1 {
   background-color: var(--c1);
@@ -38,6 +38,7 @@
 }
 
 body {
+  overflow-x: hidden;
   background: rgb(252, 219, 209);
   background: radial-gradient(
     circle,
@@ -288,6 +289,23 @@ body {
   font-size: 0.8rem;
   overflow-wrap: break-word;
 }
+.note .note_title h2,
+.note .note_description p {
+  user-select: none;
+}
+.note .note_edit {
+  padding: 0rem 1rem;
+  border-radius: 0.5rem;
+  background-color: transparent;
+  color: black;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-size: 1.2rem;
+}
+.note .note_edit:active i {
+  transform: scale(0.9);
+}
 .note .note_color_change {
   display: flex;
   justify-content: flex-end;
@@ -524,5 +542,33 @@ body {
   }
   100% {
     -webkit-transform: scaleY(1);
+  }
+}
+
+.transformFromTo {
+  animation-name: transformFromTo;
+  -webkit-animation-name: transformFromTo;
+  animation-duration: 0.15s;
+  -webkit-animation-duration: 0.15s;
+  animation-timing-function: ease-out;
+  -webkit-animation-timing-function: ease-out;
+  transform-origin: 50% 0%;
+  -ms-transform-origin: 50% 0%;
+  -webkit-transform-origin: 50% 0%;
+}
+@keyframes transformFromTo {
+  0% {
+    transform: translateY(var(--tStart));
+  }
+  100% {
+    transform: translateY(var(--tEnd));
+  }
+}
+@-webkit-keyframes transformFromTo {
+  0% {
+    -webkit-transform: translateY(var(--tStart));
+  }
+  100% {
+    -webkit-transform: translateY(var(--tEnd));
   }
 }
