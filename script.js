@@ -96,8 +96,103 @@ function removeNote() {
   }, 700);
 }
 
+function editCurrentNoteTrigger() {
+  this.parentNode.parentNode.setAttribute("id", "editing");
+  newTitle.value =
+    this.parentNode.previousElementSibling.previousElementSibling.previousElementSibling.children[0].innerHTML.replace(
+      /\r?<br>/g,
+      "\n"
+    );
+  newDescription.value =
+    this.parentNode.previousElementSibling.previousElementSibling.children[0].innerHTML.replace(
+      /\r?<br>/g,
+      "\n"
+    );
+  modal.style.display = "flex";
+  createNewBox.setAttribute("data-mode", "edit");
+  createNewBox.classList.remove(createNewBox.classList[1]);
+  createNewBox.classList.add(this.parentNode.parentNode.classList[1]);
+  newChooseColorTrigger.children[1].classList.remove(
+    newChooseColorTrigger.children[1].classList[1]
+  );
+  newChooseColorTrigger.children[1].classList.add(
+    this.parentNode.parentNode.classList[1]
+  );
+  createNewBox.classList.add("bigEntrance");
+  setTimeout(() => {
+    createNewBox.classList.remove("bigEntrance");
+  }, 1000);
+}
+
 function editCurrentNote() {
-  console.log(this);
+  if (newTitle.value.length === 0) {
+    return alert("You can't leave Title field empty!");
+  }
+  const editingNote = document.querySelector("#editing");
+  editingNote.removeAttribute("id");
+  createNewBox.removeAttribute("data-mode");
+  editingNote.children[0].children[0].innerHTML = newTitle.value.replace(
+    /\r?\n/g,
+    "<br/>"
+  );
+  editingNote.children[1].children[0].innerHTML = newDescription.value.replace(
+    /\r?\n/g,
+    "<br/>"
+  );
+  editingNote.classList.remove(editingNote.classList[1]);
+  editingNote.classList.add(createNewBox.classList[1]);
+  const chooseColorTrigger =
+    editingNote.children[3].children[1].children[0].children[1];
+  chooseColorTrigger.classList.remove(chooseColorTrigger.classList[1]);
+  chooseColorTrigger.classList.add(createNewBox.classList[1]);
+  closeModal();
+  setTimeout(() => {
+    newTitle.value = "";
+    newDescription.value = "";
+  }, 700);
+}
+
+function createNote() {
+  if (newTitle.value.length === 0) {
+    return alert("You can't leave Title field empty!");
+  }
+  const data = {
+    color: createNewBox.classList[1],
+    title: newTitle.value,
+    description: newDescription.value,
+  };
+  const clonedNodeOfNote = createNoteNode(data);
+
+  const notesContainer = notesColumns[0];
+  notesContainer.insertBefore(clonedNodeOfNote, notesContainer.children[0]);
+  const translateY = clonedNodeOfNote.getBoundingClientRect().height;
+  notesContainer.removeChild(notesContainer.children[0]);
+  closeModal();
+  setTimeout(() => {
+    [...notesContainer.children].forEach((c) => {
+      c.style.transition = `all 0.5s linear`;
+      c.style.transform = `translateY(${translateY + 30}px)`;
+    });
+    setTimeout(() => {
+      notesContainer.style.position = "relative";
+      clonedNodeOfNote.style.position = "absolute";
+      clonedNodeOfNote.style.top = "0";
+      clonedNodeOfNote.style.left = "0";
+      notesContainer.insertBefore(clonedNodeOfNote, notesContainer.children[0]);
+      notesContainer.children[0].classList.add("pullDown");
+      newTitle.value = "";
+      newDescription.value = "";
+      setTimeout(() => {
+        [...notesContainer.children].forEach((c) => {
+          c.removeAttribute("style");
+        });
+        notesContainer.removeAttribute("style");
+        notesContainer.children[0].removeAttribute("style");
+        notesContainer.children[0].classList.remove("pullDown");
+        initializeDragAndDrop(notesContainer.children[0]);
+      }, 1000);
+    }, 500);
+  }, 1000);
 }
 
 function createNoteNode(data) {
@@ -124,7 +219,7 @@ function createNoteNode(data) {
   edit_btn.classList.add("note_edit");
   edit_btn.innerHTML = '<i class="far fa-edit"></i>';
   div_color_container.appendChild(edit_btn);
-  edit_btn.addEventListener("click", editCurrentNote);
+  edit_btn.addEventListener("click", editCurrentNoteTrigger);
 
   let div_color_inner = document.createElement("div");
   div_color_inner.classList.add("choose_colors_container");
@@ -186,6 +281,12 @@ function createNoteNode(data) {
 //// Open Modal ////
 document.querySelector(".add_new").addEventListener("click", () => {
   modal.style.display = "flex";
+  createNewBox.classList.remove(createNewBox.classList[1]);
+  createNewBox.classList.add("col-4");
+  newChooseColorTrigger.children[1].classList.remove(
+    newChooseColorTrigger.children[1].classList[1]
+  );
+  newChooseColorTrigger.children[1].classList.add("col-4");
   createNewBox.classList.add("bigEntrance");
   setTimeout(() => {
     createNewBox.classList.remove("bigEntrance");
@@ -194,45 +295,30 @@ document.querySelector(".add_new").addEventListener("click", () => {
 //// Open Modal ////
 
 //// Create New Note ////
-newCreate.addEventListener("click", () => {
-  if (newTitle.value.length === 0 || newDescription.value.length === 0) {
-    return alert("You can't leave any field empty!");
+function editModeCheck() {
+  if (createNewBox.hasAttribute("data-mode")) {
+    editCurrentNote();
+  } else {
+    createNote();
   }
-  const data = {
-    color: createNewBox.classList[1],
-    title: newTitle.value,
-    description: newDescription.value,
-  };
-  const clonedNodeOfNote = createNoteNode(data);
+}
+newCreate.addEventListener("click", function () {
+  editModeCheck();
+});
 
-  const notesContainer = notesColumns[0];
-  notesContainer.insertBefore(clonedNodeOfNote, notesContainer.children[0]);
-  const translateY = clonedNodeOfNote.getBoundingClientRect().height;
-  notesContainer.removeChild(notesContainer.children[0]);
-  closeModal();
-  setTimeout(() => {
-    [...notesContainer.children].forEach((c) => {
-      c.style.transition = `all 0.5s linear`;
-      c.style.transform = `translateY(${translateY + 30}px)`;
-    });
-    setTimeout(() => {
-      notesContainer.style.position = "relative";
-      clonedNodeOfNote.style.position = "absolute";
-      clonedNodeOfNote.style.top = "0";
-      clonedNodeOfNote.style.left = "0";
-      notesContainer.insertBefore(clonedNodeOfNote, notesContainer.children[0]);
-      notesContainer.children[0].classList.add("pullDown");
-      setTimeout(() => {
-        [...notesContainer.children].forEach((c) => {
-          c.removeAttribute("style");
-        });
-        notesContainer.removeAttribute("style");
-        notesContainer.children[0].removeAttribute("style");
-        notesContainer.children[0].classList.remove("pullDown");
-        initializeDragAndDrop(notesContainer.children[0]);
-      }, 1000);
-    }, 500);
-  }, 1000);
+newDescription.addEventListener("keydown", function (e) {
+  const keyCode = e.which || e.keyCode;
+  if (keyCode === 13 && e.ctrlKey) {
+    editModeCheck();
+  }
+});
+
+newTitle.addEventListener("keydown", function (e) {
+  const keyCode = e.which || e.keyCode;
+  if (keyCode === 13) {
+    e.preventDefault();
+    editModeCheck();
+  }
 });
 //// Create New Note ////
 
@@ -265,7 +351,11 @@ function removeText(input, secondInput) {
 }
 
 document.querySelector(".trash").addEventListener("click", () => {
-  removeText(newTitle, newDescription);
+  if (createNewBox.hasAttribute("data-mode")) {
+    closeModal();
+  } else {
+    removeText(newTitle, newDescription);
+  }
 });
 //// Trash Note ////
 
@@ -279,12 +369,14 @@ document.querySelector(".trash").addEventListener("click", () => {
 
 //// Choose Color Function ////
 newChooseColorTrigger.addEventListener("click", function () {
-  this.classList.toggle("show");
-  newChooseColorDropdown.style.display = "block";
-  newChooseColorDropdown.classList.add("pullDownChoose");
-  setTimeout(() => {
-    newChooseColorDropdown.classList.remove("pullDownChoose");
-  }, 1000);
+  if (!this.classList.contains("show")) {
+    this.classList.add("show");
+    newChooseColorDropdown.style.display = "block";
+    newChooseColorDropdown.classList.add("pullDownChoose");
+    setTimeout(() => {
+      newChooseColorDropdown.classList.remove("pullDownChoose");
+    }, 500);
+  }
 });
 
 document
@@ -385,9 +477,9 @@ function initializeDragAndDrop(c) {
                   y < draggableElementsInner[0].getBoundingClientRect().bottom
                 ) {
                   if (!dragged.hasAttribute("style")) {
+                    dragged.style.opacity = "0";
                     changeNoteContainer(dragged, draggedElement);
                   }
-                  dragged.style.opacity = "0";
                   c.insertBefore(dragged, draggableElementsInner[0]);
                   el.style = `--tStart:-${
                     dragged.getBoundingClientRect().height + 30
@@ -493,6 +585,14 @@ function initializeDragAndDrop(c) {
 
       clonedEl.classList.add("dragging");
       c.classList.add("dragged");
+
+      notesColumns.forEach((c) => {
+        [...c.children].forEach((el) => {
+          if (el.hasAttribute("style")) {
+            el.removeAttribute("style");
+          }
+        });
+      });
     }
   }
 
@@ -533,6 +633,14 @@ function initializeDragAndDrop(c) {
 
       clonedEl.classList.add("dragging");
       c.classList.add("dragged");
+
+      notesColumns.forEach((c) => {
+        [...c.children].forEach((el) => {
+          if (el.hasAttribute("style")) {
+            el.removeAttribute("style");
+          }
+        });
+      });
     }
   }
 
@@ -574,7 +682,7 @@ const data = {
       color: "col-1",
       title: "Business Ideas",
       description:
-        "What is Lorem Ipsum? \n \n Lorem Ipsum is simply dummy text of the printing and typesetting industry  \n \n Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        "What is Lorem Ipsum? \n \nLorem Ipsum is simply dummy text of the printing and typesetting industry  \n \nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
     },
     {
       color: "col-3",
@@ -619,6 +727,12 @@ const data = {
     {
       color: "col-2",
       title: "Vision/Values memo",
+      description:
+        "Nike \n \n  Our mission is to bring inspiration and innovation to every athlete* in the world. [*If you have a body, you are an athlete.] Airbnb Values Champion the Mission Be a Host Simplify",
+    },
+    {
+      color: "col-5",
+      title: "Values memo",
       description:
         "Nike \n \n  Our mission is to bring inspiration and innovation to every athlete* in the world. [*If you have a body, you are an athlete.] Airbnb Values Champion the Mission Be a Host Simplify",
     },
